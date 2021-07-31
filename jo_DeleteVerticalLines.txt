@@ -1,0 +1,89 @@
+//jo_DeleteVerticalLines
+
+using elsystem.drawingobjects;
+using charting;
+using elsystem.collections;
+using elsystem.drawing;
+	 
+vars: elsystem.windows.forms.Form mainForm(Null);
+vars: elsystem.drawingobjects.VerticalLine myVLine(null);
+vars: charting.DrawingObjectVisualElement myDrawingObject(null);
+var: Vector myVectorObj(null);
+var: int objectCount(0);
+vars: int MyObjects(null);
+var: Rectangle myRectangle(null),
+	 TextLabel myText(null),
+	 elsystem.windows.forms.Button btnExport( Null );
+
+
+method void AnalysisTechnique_Initialized( elsystem.Object sender, elsystem.InitializedEventArgs args ) 
+begin
+	Cleardebug();
+end; 
+
+method void ChartingHost1_OnInitialUpdate( elsystem.Object sender, charting.OnInitialUpdateEventArgs args ) 
+var: int bc;
+begin
+	//print("ChartingHost1_OnInitialUpdate");
+	PlotLabel(args.width,args.height);  // plots the text rectangle
+end;
+
+method void Delete()
+var: elsystem.DrawingObjects.DrawObjects drawobjects,  int counter;
+Begin 
+	 
+     MyObjects = ObjectCategory.VerticalLineCreatedByDrawingObject;
+     
+     objectCount = DrawingObjects.Items[MyObjects].Count;
+     
+     for counter = 1 to objectCount
+     begin
+                   
+          myVLine = DrawingObjects.Items[MyObjects][0] astype VerticalLine ;
+          DrawingObjects.Delete(myVLine);          
+     end; 
+
+end;
+
+method void OnButtonClick( elsystem.Object sender, elsystem.EventArgs args ) 
+begin
+	Delete();
+end; 
+
+{ plots a rectangle containing a text label near the upper right corner of a chart }
+Method void PlotLabel(int ChartWidth, int ChartHeight) 
+var: int x1, int y1, int w1, int h1;
+begin
+	w1 = 180;				// width of the rectangle (needs to be slightly wider than the text)
+	h1 = 28;				// height of the rectangle
+	x1 = 50;				// x coordinate of the left edge of the rectangle
+	y1 = 50;				// y coordinate of the top edge of the rectangle
+	
+	{create the rectangle and text drawing objects if they don't exist}
+	If myRectangle = null then begin
+		{creates a rectangle using a pair of X,Y points} 
+		myRectangle = Rectangle.create(XYPoint.Create(x1,y1),XYPoint.Create(x1+w1,y1+h1));
+		myRectangle.Color = Color.AntiqueWhite;
+		myRectangle.FillColor = Color.fromargb(80,0,0,255); // set to transparent blue
+		//myRectangle.Click += OnButtonClick;
+		
+		myRectangle.Persist = true;		 	// persist keeps the rectangle on the chart between tick updates	
+		DrawingObjects.Add(myRectangle);	// draws the rectangle on the chart
+		
+		{creates a text string at an X,Y point inside the rectangle} 
+		myText = TextLabel.Create(XYPoint.Create(x1+5,y1+5),"Trades today: "+numtostr(dailytrades,0));
+		myText = TextLabel.Create(XYPoint.Create(x1+5,y1+5),"Delete Vertical Lines");
+		
+		myText.Color = Color.White;
+		myText.Click +=	OnButtonClick;	
+		myText.Persist = true;		// persist keeps the text label on the chart between tick updates
+		DrawingObjects.Add(myText);	// draws the text on the chart
+		
+	end Else begin
+		{udpates the X,Y coordinates for an existing rectangle and text}
+		myRectangle.SetStartPoint(XYPoint.Create(x1,y1));
+		myRectangle.SetEndPoint(XYPoint.Create(x1+w1,y1+h1));
+		myText.PointValue=XYPoint.Create(x1+5,y1+5);
+	end;
+end;
+	

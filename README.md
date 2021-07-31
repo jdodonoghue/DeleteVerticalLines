@@ -4,4 +4,4 @@ A macro to delete vertical lines on chart.
 
 1.  Import Easy Language code: jo_DeleteVerticalLines
 
-todo: need event to trigger
+2.  Add Vertical Lines to chart; Click button at upper left corner.
